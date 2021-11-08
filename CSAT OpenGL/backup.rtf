@@ -1,0 +1,454 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;\f1\fnil\fcharset0 Menlo-Bold;}
+{\colortbl;\red255\green255\blue255;\red108\green121\blue134;\red31\green31\blue36;\red255\green255\blue255;
+\red253\green143\blue63;\red252\green106\blue93;\red158\green241\blue221;\red65\green161\blue192;\red252\green95\blue163;
+\red208\green191\blue105;\red103\green183\blue164;\red161\green103\blue230;\red253\green143\blue63;\red103\green183\blue164;
+\red208\green168\blue255;\red208\green168\blue255;\red158\green241\blue221;}
+{\*\expandedcolortbl;;\csgenericrgb\c42394\c47462\c52518;\csgenericrgb\c12054\c12284\c14131;\csgenericrgb\c100000\c100000\c100000\c85000;
+\csgenericrgb\c99131\c56076\c24611;\csgenericrgb\c98912\c41558\c36568;\csgenericrgb\c62145\c94386\c86819;\csgenericrgb\c25490\c63137\c75294;\csgenericrgb\c98839\c37355\c63833;
+\csgenericrgb\c81498\c74939\c41233;\csgenericrgb\c40392\c71765\c64314;\csgenericrgb\c63137\c40392\c90196;\csgenericrgb\c99216\c56078\c24706;\csgenericrgb\c40538\c71705\c64209;
+\csgenericrgb\c81681\c65692\c99927;\csgenericrgb\c81569\c65882\c100000;\csgenericrgb\c61961\c94510\c86667;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\deftab593
+\pard\tx593\pardeftab593\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf2 \cb3 // Include standard headers\cf4 \
+\cf5 #include \cf6 <stdio.h>\cf4 \
+\cf5 #include \cf6 <stdlib.h>\cf4 \
+\cf5 #include \cf6 <vector>\cf4 \
+\cf5 #include \cf6 <algorithm>\cf4 \
+\
+\cf2 // Include GLEW\cf4 \
+\cf5 #include \cf6 <GL/glew.h>\cf4 \
+\
+\cf2 // Include GLFW\cf4 \
+\cf5 #include \cf6 <GLFW/glfw3.h>\cf4 \
+\
+\cf7 GLFWwindow\cf4 * \cf8 window\cf4 ;\
+
+\f1\b \cf9 int
+\f0\b0 \cf4  \cf8 win_width\cf4  = \cf10 1024\cf4 ;\
+
+\f1\b \cf9 int
+\f0\b0 \cf4  \cf8 win_height\cf4  = \cf10 768\cf4 ;\
+\
+\cf2 // tex util\cf4 \
+\cf5 #include \cf6 "bmpUtil.hpp"\cf4 \
+\
+\cf2 // Shaders\cf4 \
+\cf5 #include \cf6 "loadShader.hpp"\cf4 \
+\
+\cf2 // Include GLM\cf4 \
+\cf5 #include \cf6 <glm/glm.hpp>\cf4 \
+\cf5 #include \cf6 <glm/gtc/matrix_transform.hpp>\cf4 \
+\
+\cf2 // Models\cf4 \
+\cf5 #include \cf6 "modelUtil.hpp"\cf4 \
+\
+\cf5 #include \cf6 "engine_render.hpp"\cf4 \
+\
+
+\f1\b \cf9 using
+\f0\b0 \cf4  
+\f1\b \cf9 namespace
+\f0\b0 \cf4  \cf7 glm\cf4 ;\
+\
+\
+
+\f1\b \cf9 void
+\f0\b0 \cf4  \cf8 initgl\cf4 () \{\
+    \cf2 // Initialise GLFW\cf4 \
+    
+\f1\b \cf9 if
+\f0\b0 \cf4 ( !\cf11 glfwInit\cf4 () )\
+    \{\
+        \cf12 fprintf\cf4 ( \cf13 stderr\cf4 , \cf6 "Failed to initialize GLFW\\n"\cf4  );\
+        \cf12 getchar\cf4 ();\
+        
+\f1\b \cf9 return
+\f0\b0 \cf4 ;\
+    \}\
+\
+    \cf11 glfwWindowHint\cf4 (\cf5 GLFW_SAMPLES\cf4 , \cf10 4\cf4 );\
+    \cf11 glfwWindowHint\cf4 (\cf5 GLFW_CONTEXT_VERSION_MAJOR\cf4 , \cf10 3\cf4 );\
+    \cf11 glfwWindowHint\cf4 (\cf5 GLFW_CONTEXT_VERSION_MINOR\cf4 , \cf10 3\cf4 );\
+    \cf11 glfwWindowHint\cf4 (\cf5 GLFW_OPENGL_FORWARD_COMPAT\cf4 , \cf5 GL_TRUE\cf4 ); \cf2 // To make MacOS happy; should not be needed\cf4 \
+    \cf11 glfwWindowHint\cf4 (\cf5 GLFW_OPENGL_PROFILE\cf4 , \cf5 GLFW_OPENGL_CORE_PROFILE\cf4 );\
+\
+    \cf2 // Open a window and create its OpenGL context\cf4 \
+\
+    \
+    \
+    \cf14 window\cf4  = \cf11 glfwCreateWindow\cf4 ( \cf14 win_width\cf4 , \cf14 win_height\cf4 , \cf6 "CSAT OpenGL project"\cf4 , 
+\f1\b \cf9 NULL
+\f0\b0 \cf4 , 
+\f1\b \cf9 NULL
+\f0\b0 \cf4 );\
+    
+\f1\b \cf9 if
+\f0\b0 \cf4 ( \cf14 window\cf4  == 
+\f1\b \cf9 NULL
+\f0\b0 \cf4  )\{\
+        \cf12 fprintf\cf4 ( \cf13 stderr\cf4 , \cf6 "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\\n"\cf4  );\
+        \cf12 getchar\cf4 ();\
+        \cf11 glfwTerminate\cf4 ();\
+        
+\f1\b \cf9 return
+\f0\b0 \cf4 ;\
+    \}\
+    \cf11 glfwMakeContextCurrent\cf4 (\cf14 window\cf4 );\
+    \
+    \
+    
+\f1\b \cf9 if
+\f0\b0 \cf4  (\cf11 glewInit\cf4 () != \cf5 GLEW_OK\cf4 ) \{\
+        \cf12 fprintf\cf4 (\cf13 stderr\cf4 , \cf6 "Failed to initialize GLEW\\n"\cf4 );\
+        \cf12 getchar\cf4 ();\
+        \cf11 glfwTerminate\cf4 ();\
+        
+\f1\b \cf9 return
+\f0\b0 \cf4 ;\
+    \}\
+\}\
+\
+\cf7 GLuint\cf4  \cf8 gen_buffer\cf4 (
+\f1\b \cf9 const
+\f0\b0 \cf4  \cf7 GLfloat\cf4 * vert_data, 
+\f1\b \cf9 int
+\f0\b0 \cf4  size) \{\
+    \cf2 // This will identify our vertex buffer\cf4 \
+    \cf7 GLuint\cf4  vertexbuffer;\
+    \cf2 // Generate 1 buffer, put the resulting identifier in vertexbuffer\cf4 \
+    \cf5 glGenBuffers\cf4 (\cf10 1\cf4 , &vertexbuffer);\
+    \cf2 // The following commands will talk about our 'vertexbuffer' buffer\cf4 \
+    \cf5 glBindBuffer\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , vertexbuffer);\
+    \cf2 // Give our vertices to OpenGL.\cf4 \
+    \cf5 glBufferData\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , size * 
+\f1\b \cf9 sizeof
+\f0\b0 \cf4 (\cf7 GLfloat\cf4 ), vert_data, \cf5 GL_STATIC_DRAW\cf4 );\
+    \
+    
+\f1\b \cf9 return
+\f0\b0 \cf4  vertexbuffer;\
+\}\
+\
+\cf7 GLuint\cf4  \cf8 gen_buffer_vec3\cf4 (\cf15 std\cf4 ::\cf16 vector\cf4 <\cf7 vec3\cf4 > &vertices) \{\
+    \cf7 GLuint\cf4  buffer;\
+    \cf5 glGenBuffers\cf4 (\cf10 1\cf4 , &buffer);\
+    \cf5 glBindBuffer\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , buffer);\
+    \cf5 glBufferData\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , 
+\f1\b \cf9 sizeof
+\f0\b0 \cf4 (\cf7 vec3\cf4 ) * vertices.\cf12 size\cf4 (), &vertices[\cf10 0\cf4 ], \cf5 GL_STATIC_DRAW\cf4 );\
+    
+\f1\b \cf9 return
+\f0\b0 \cf4  buffer;\
+\}\
+\
+\cf7 GLuint\cf4  \cf8 gen_buffer_vec2\cf4 (\cf15 std\cf4 ::\cf16 vector\cf4 <\cf7 vec2\cf4 > &vertices) \{\
+    \cf7 GLuint\cf4  buffer;\
+    \cf5 glGenBuffers\cf4 (\cf10 1\cf4 , &buffer);\
+    \cf5 glBindBuffer\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , buffer);\
+    \cf5 glBufferData\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , 
+\f1\b \cf9 sizeof
+\f0\b0 \cf4 (\cf7 vec2\cf4 ) * vertices.\cf12 size\cf4 (), &vertices[\cf10 0\cf4 ], \cf5 GL_STATIC_DRAW\cf4 );\
+    
+\f1\b \cf9 return
+\f0\b0 \cf4  buffer;\
+\}\
+\
+\cf2 // Generates and adds a generic GLfloat array to the "buffer" vector\cf4 \
+
+\f1\b \cf9 void
+\f0\b0 \cf4  \cf8 gen_generic\cf4 (\cf15 std\cf4 ::\cf16 vector\cf4 <\cf7 GLfloat\cf4 > &buffer, \cf7 GLfloat\cf4  * data, 
+\f1\b \cf9 int
+\f0\b0 \cf4  size) \{\
+    
+\f1\b \cf9 for
+\f0\b0 \cf4 (
+\f1\b \cf9 int
+\f0\b0 \cf4  n = \cf10 0\cf4 ; n < size; n++) \{\
+        buffer.\cf12 push_back\cf4 (*(data + n));\
+    \}\
+\}\
+\
+\
+
+\f1\b \cf9 int
+\f0\b0 \cf4  \cf8 main\cf4 ( 
+\f1\b \cf9 void
+\f0\b0 \cf4  )\
+\{\
+    \cf11 initgl\cf4 (); \cf2 // Initialize openGL\cf4 \
+    \cf2 // Ensure we can capture the escape key being pressed below\cf4 \
+    \cf11 glfwSetInputMode\cf4 (\cf14 window\cf4 , \cf5 GLFW_STICKY_KEYS\cf4 , \cf5 GL_TRUE\cf4 );\
+\
+    \cf2 // Dark blue background\cf4 \
+    \cf11 glClearColor\cf4 (\cf10 0.0f\cf4 , \cf10 0.0f\cf4 , \cf10 0.2f\cf4 , \cf10 0.0f\cf4 );\
+    \
+    \cf7 GLuint\cf4  VertexArrayID;\
+    \cf5 glGenVertexArrays\cf4 (\cf10 1\cf4 , &VertexArrayID);\
+    \cf5 glBindVertexArray\cf4 (VertexArrayID);\
+    \
+    \cf2 // Load the ENTIRE model now!\cf4 \
+    \
+    \cf17 Shader\cf4  shader = \cf17 Shader\cf4 (\cf6 "../vertex.glsl"\cf4 , \cf6 "../frag.glsl"\cf4 );\
+    \cf17 Mesh\cf4  m = \cf17 Mesh\cf4 (\cf6 "../suzanne.obj"\cf4 );\
+    \cf17 Texture\cf4  tex = \cf17 Texture\cf4 ();\
+    tex.\cf11 load_bmp\cf4 (\cf6 "../uvtemplate.bmp"\cf4 );\
+    \
+    \cf17 MeshRenderer\cf4  monke = \cf17 MeshRenderer\cf4 (m, tex, shader);\
+    \
+    \cf2 /*\cf4 \
+\cf2     std::vector< glm::vec3 > vertices;\cf4 \
+\cf2     std::vector< glm::vec2 > uvs;\cf4 \
+\cf2     std::vector< glm::vec3 > normals;\cf4 \
+\cf2     loadOBJ("../suzanne.obj", vertices, uvs, normals);\cf4 \
+\cf2     GLuint vertexbuffer = gen_buffer_vec3(vertices);\cf4 \
+\cf2     GLuint uvBuffer = gen_buffer_vec2(uvs);\cf4 \
+\cf2     GLuint normalBuffer = gen_buffer_vec3(normals);\cf4 \
+\cf2     GLuint texture = loadBMP_custom("../uvtemplate.bmp");\cf4 \
+\cf2     \cf4 \
+\cf2     \cf4 \
+\cf2     \cf4 \
+\cf2     // Light\cf4 \
+\cf2     std::vector< glm::vec3 > lightVertices;\cf4 \
+\cf2     std::vector< glm::vec2 > lightUvs;\cf4 \
+\cf2     std::vector< glm::vec3 > lightNormals;\cf4 \
+\cf2     \cf4 \
+\cf2     loadOBJ("../cube.obj", lightVertices, lightUvs, lightNormals);\cf4 \
+\cf2     \cf4 \
+\cf2     GLuint lvb = gen_buffer_vec3(lightVertices);\cf4 \
+\cf2     GLuint lub = gen_buffer_vec2(lightUvs);\cf4 \
+\cf2     GLuint lnb = gen_buffer_vec3(lightNormals);\cf4 \
+\cf2     \cf4 \
+\cf2     GLfloat colorData[lightVertices.size() * 3];\cf4 \
+\cf2     for(int n = 0; n < lightVertices.size() * 3; n++) \{\cf4 \
+\cf2         colorData[n] = 1.0f;\cf4 \
+\cf2     \}\cf4 \
+\cf2     \cf4 \
+\cf2     GLuint colorBuffer = gen_buffer(colorData, (int) lightVertices.size() * 3);\cf4 \
+\cf2     */\cf4 \
+    \cf2 //GLuint texture = loadBMP_custom("../uvtemplate.bmp");\cf4 \
+    \
+    \cf2 // Setting up the camera\cf4 \
+    \cf17 Camera\cf4  camera = \cf17 Camera\cf4 ();\
+    \
+    \cf2 // Shaders\cf4 \
+    \cf7 GLuint\cf4  programID = \cf11 LoadShaders\cf4 ( \cf6 "../vertex.glsl"\cf4 , \cf6 "../frag.glsl"\cf4  );\
+    \
+    \cf2 // Shader props\cf4 \
+    \cf7 GLuint\cf4  MatrixID = \cf5 glGetUniformLocation\cf4 (programID, \cf6 "MVP"\cf4 );\
+    \cf7 GLuint\cf4  ViewMatrixID = \cf5 glGetUniformLocation\cf4 (programID, \cf6 "V"\cf4 );\
+    \cf7 GLuint\cf4  ModelMatrixID = \cf5 glGetUniformLocation\cf4 (programID, \cf6 "M"\cf4 );\
+    \cf7 GLuint\cf4  TextureID  = \cf5 glGetUniformLocation\cf4 (programID, \cf6 "textureSampler"\cf4 );\
+    \cf7 GLuint\cf4  LightID = \cf5 glGetUniformLocation\cf4 (programID, \cf6 "LightPosition_worldspace"\cf4 );\
+    \cf7 GLuint\cf4  LColorID = \cf5 glGetUniformLocation\cf4 (programID, \cf6 "lightColor"\cf4 );\
+    \
+    
+\f1\b \cf9 double
+\f0\b0 \cf4  currentTime = \cf10 0\cf4 ;\
+    
+\f1\b \cf9 double
+\f0\b0 \cf4  lastTime = \cf10 0\cf4 ;\
+    
+\f1\b \cf9 float
+\f0\b0 \cf4  deltaTime = \cf10 0.0f\cf4 ;\
+    \
+    \cf2 // Depth buffer\cf4 \
+    \cf2 // Enable depth test\cf4 \
+    \cf11 glEnable\cf4 (\cf5 GL_DEPTH_TEST\cf4 );\
+    \cf2 // Accept fragment if it closer to the camera than the former one\cf4 \
+    \cf11 glDepthFunc\cf4 (\cf5 GL_LESS\cf4 );\
+\
+    \
+    \cf11 glfwSetInputMode\cf4 (\cf14 window\cf4 , \cf5 GLFW_CURSOR\cf4 , \cf5 GLFW_CURSOR_DISABLED\cf4 );\
+    \
+    \cf11 glEnable\cf4 (\cf5 GL_CULL_FACE\cf4 );\
+    \
+    \cf7 vec3\cf4  cubePosition = \cf7 vec3\cf4 (\cf10 0.0f\cf4 , \cf10 0.0f\cf4 , \cf10 0.0f\cf4 );\
+    \
+    
+\f1\b \cf9 do
+\f0\b0 \cf4 \{\
+        \
+        \cf2 // dt\cf4 \
+        currentTime = \cf11 glfwGetTime\cf4 ();\
+        deltaTime = 
+\f1\b \cf9 float
+\f0\b0 \cf4 (currentTime - lastTime);\
+        \
+        \cf2 // Controls\cf4 \
+    \
+        \
+        
+\f1\b \cf9 double
+\f0\b0 \cf4  xpos, ypos;\
+        \cf11 glfwGetCursorPos\cf4 (\cf14 window\cf4 , &xpos, &ypos);\
+        camera.\cf14 orientation\cf4 .\cf14 x\cf4  += camera.\cf14 sensitivity\cf4  * deltaTime * 
+\f1\b \cf9 float
+\f0\b0 \cf4 (\cf14 win_width\cf4 /\cf10 2\cf4  - xpos);\
+        camera.\cf14 orientation\cf4 .\cf14 y\cf4  += camera.\cf14 sensitivity\cf4  * deltaTime * 
+\f1\b \cf9 float
+\f0\b0 \cf4 (\cf14 win_height\cf4 /\cf10 2\cf4  - ypos);\
+    \
+        camera.\cf14 orientation\cf4 .\cf14 y\cf4  = \cf11 clamp\cf4 (camera.\cf14 orientation\cf4 .\cf14 y\cf4 , \cf11 radians\cf4 (-\cf10 90.0f\cf4 ), \cf11 radians\cf4 (\cf10 90.0f\cf4 ));\
+        \
+        \cf11 glfwSetCursorPos\cf4 (\cf14 window\cf4 , \cf14 win_width\cf4 /\cf10 2\cf4 , \cf14 win_height\cf4 /\cf10 2\cf4 );\
+        \
+        \
+        \cf7 vec3\cf4  direction(\
+            \cf12 cos\cf4 (camera.\cf14 orientation\cf4 .\cf14 y\cf4 ) * \cf12 sin\cf4 (camera.\cf14 orientation\cf4 .\cf14 x\cf4 ),\
+            \cf12 sin\cf4 (camera.\cf14 orientation\cf4 .\cf14 y\cf4 ),\
+            \cf12 cos\cf4 (camera.\cf14 orientation\cf4 .\cf14 y\cf4 ) * \cf12 cos\cf4 (camera.\cf14 orientation\cf4 .\cf14 x\cf4 )\
+        );\
+        \
+        \cf7 vec3\cf4  right = \cf7 glm\cf4 ::\cf7 vec3\cf4 (\
+            \cf12 sin\cf4 (camera.\cf14 orientation\cf4 .\cf14 x\cf4  - \cf10 3.14f\cf4 /\cf10 2.0f\cf4 ),\
+            \cf10 0\cf4 ,\
+            \cf12 cos\cf4 (camera.\cf14 orientation\cf4 .\cf14 x\cf4  - \cf10 3.14f\cf4 /\cf10 2.0f\cf4 )\
+        );\
+        \
+        camera.\cf14 up\cf4  = \cf7 glm\cf4 ::\cf11 cross\cf4 ( right, direction );\
+        \
+        \cf2 // Move forward\cf4 \
+        \
+        
+\f1\b \cf9 if
+\f0\b0 \cf4  (\cf11 glfwGetKey\cf4 ( \cf14 window\cf4 , \cf5 GLFW_KEY_UP\cf4  ) == \cf5 GLFW_PRESS\cf4 )\{\
+            camera.\cf14 position\cf4  += direction * deltaTime * camera.\cf14 speed\cf4 ;\
+        \}\
+        \cf2 // Move backward\cf4 \
+        
+\f1\b \cf9 if
+\f0\b0 \cf4  (\cf11 glfwGetKey\cf4 ( \cf14 window\cf4 , \cf5 GLFW_KEY_DOWN\cf4  ) == \cf5 GLFW_PRESS\cf4 )\{\
+            camera.\cf14 position\cf4  -= direction * deltaTime * camera.\cf14 speed\cf4 ;\
+        \}\
+        \cf2 // Strafe right\cf4 \
+        
+\f1\b \cf9 if
+\f0\b0 \cf4  (\cf11 glfwGetKey\cf4 ( \cf14 window\cf4 , \cf5 GLFW_KEY_RIGHT\cf4  ) == \cf5 GLFW_PRESS\cf4 )\{\
+            camera.\cf14 position\cf4  += right * deltaTime * camera.\cf14 speed\cf4 ;\
+        \}\
+        \cf2 // Strafe left\cf4 \
+        
+\f1\b \cf9 if
+\f0\b0 \cf4  (\cf11 glfwGetKey\cf4 ( \cf14 window\cf4 , \cf5 GLFW_KEY_LEFT\cf4  ) == \cf5 GLFW_PRESS\cf4 )\{\
+            camera.\cf14 position\cf4  -= right * deltaTime * camera.\cf14 speed\cf4 ;\
+        \}\
+        \
+        \cf2 //cameravel -= vec3(0.0f, 9.8f * deltaTime, 0.0f);\cf4 \
+        \cf2 //camera.position += cameravel;\cf4 \
+        \cf2 // End controls\cf4 \
+        \cf7 mat4\cf4  cameraProjection = \cf11 perspective\cf4 (\cf11 radians\cf4 (camera.\cf14 fov\cf4 ), (
+\f1\b \cf9 float
+\f0\b0 \cf4 )\cf14 win_width\cf4  / (
+\f1\b \cf9 float
+\f0\b0 \cf4 )\cf14 win_height\cf4 , camera.\cf14 nearPlane\cf4 , camera.\cf14 farPlane\cf4 );\
+        \cf7 mat4\cf4  viewMatrix = \cf11 lookAt\cf4 (camera.\cf14 position\cf4 , camera.\cf14 position\cf4  + direxction, camera.\cf14 up\cf4 );\
+        \
+        \
+        \
+        \cf7 mat4\cf4  lightMatrix = \cf7 mat4\cf4 (\cf10 1.0f\cf4 );\
+        lightMatrix = \cf11 scale\cf4 (lightMatrix, \cf7 vec3\cf4 (\cf10 0.1f\cf4 , \cf10 0.1f\cf4 , \cf10 0.1f\cf4 ));\
+        \cf7 mat4\cf4  lightMVP = cameraProjection * viewMatrix * lightMatrix;\
+        \
+        \cf2 // Pass data to shaders\cf4 \
+\
+        \
+        \cf7 glm\cf4 ::\cf7 vec3\cf4  lightPos = \cf7 vec3\cf4 (\cf10 0\cf4 , \cf10 0\cf4 , \cf10 0\cf4 );\
+        \cf5 glUniform3f\cf4 (LightID, lightPos.\cf14 x\cf4 , lightPos.\cf14 y\cf4 , lightPos.\cf14 z\cf4 );\
+        \
+        \cf7 vec3\cf4  lightColor = \cf7 vec3\cf4 (\cf10 1.0f\cf4 , \cf10 1.0f\cf4 , \cf10 1.0f\cf4 );\
+        \cf5 glUniform3f\cf4 (LColorID, lightColor.\cf14 x\cf4 , lightColor.\cf14 y\cf4 , lightColor.\cf14 z\cf4 );\
+        \
+        \cf2 // Bind our texture in Texture Unit 0\cf4 \
+        \cf5 glActiveTexture\cf4 (\cf5 GL_TEXTURE0\cf4 );\
+        \cf11 glBindTexture\cf4 (\cf5 GL_TEXTURE_2D\cf4 , monke.\cf14 texture\cf4 .\cf14 texture\cf4 );\
+        \cf2 // Set our "myTextureSampler" sampler to use Texture Unit 0\cf4 \
+        \cf5 glUniform1i\cf4 (TextureID, \cf10 0\cf4 );\
+\
+        \
+        \cf2 // Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.\cf4 \
+        \cf11 glClear\cf4 (\cf5 GL_COLOR_BUFFER_BIT\cf4  | \cf5 GL_DEPTH_BUFFER_BIT\cf4 );\
+        \cf5 glUseProgram\cf4 (programID);\
+        \
+        \cf2 /* RENDERER TEST */\cf4 \
+        monke.\cf11 gl_render\cf4 ();\
+        \
+\
+        \cf2 // 1st attribute buffer : vertices\cf4 \
+        \
+        cubePosition = \cf7 vec3\cf4 (\cf12 sin\cf4 (\cf11 glfwGetTime\cf4 ()) * \cf10 5\cf4 , \cf12 cos\cf4 (\cf11 glfwGetTime\cf4 ()) * \cf10 5\cf4 , \cf10 0.0f\cf4 );\
+        \
+        \cf7 mat4\cf4  modelMatrix = \cf7 mat4\cf4 (\cf10 1.0f\cf4 );\
+        modelMatrix = \cf11 translate\cf4 (modelMatrix, cubePosition); \cf2 // Might need to overhaul to a model-based system..\cf4 \
+        \cf7 mat4\cf4  mvp = camera.\cf11 getCameraProjectionMatrix\cf4 (\cf14 win_width\cf4 , \cf14 win_height\cf4 ) * camera.\cf11 getCameraViewMatrix\cf4 () * modelMatrix; \cf2 // Generate the final projection matrix\cf4 \
+        \
+        \cf5 glUniformMatrix4fv\cf4 (MatrixID, \cf10 1\cf4 , \cf5 GL_FALSE\cf4 , &mvp[\cf10 0\cf4 ][\cf10 0\cf4 ]);\
+        \cf5 glUniformMatrix4fv\cf4 (ModelMatrixID, \cf10 1\cf4 , \cf5 GL_FALSE\cf4 , &modelMatrix[\cf10 0\cf4 ][\cf10 0\cf4 ]);\
+        \cf5 glUniformMatrix4fv\cf4 (ViewMatrixID, \cf10 1\cf4 , \cf5 GL_FALSE\cf4 , &viewMatrix[\cf10 0\cf4 ][\cf10 0\cf4 ]);\
+    \
+        \cf5 glDisableVertexAttribArray\cf4 (\cf10 1\cf4 );\
+        \cf5 glEnableVertexAttribArray\cf4 (\cf10 0\cf4 );\
+        \cf5 glBindBuffer\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , monke.\cf14 mesh\cf4 .\cf14 vertexBuffer\cf4 );\
+        \cf5 glVertexAttribPointer\cf4 (\cf10 0\cf4 , \cf10 3\cf4 , \cf5 GL_FLOAT\cf4 , \cf5 GL_FALSE\cf4 , \cf10 0\cf4 , (
+\f1\b \cf9 void
+\f0\b0 \cf4 *)\cf10 0\cf4 );\
+        \
+        \cf5 glEnableVertexAttribArray\cf4 (\cf10 2\cf4 );\
+        \cf5 glBindBuffer\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , monke.\cf14 mesh\cf4 .\cf14 UVBuffer\cf4 );\
+        \cf5 glVertexAttribPointer\cf4 (\cf10 2\cf4 , \cf10 2\cf4 , \cf5 GL_FLOAT\cf4 , \cf5 GL_FALSE\cf4 , \cf10 0\cf4 , (
+\f1\b \cf9 void
+\f0\b0 \cf4 *)\cf10 0\cf4 );\
+        \
+        \cf5 glEnableVertexAttribArray\cf4 (\cf10 3\cf4 );\
+        \cf5 glBindBuffer\cf4 (\cf5 GL_ARRAY_BUFFER\cf4 , monke.\cf14 mesh\cf4 .\cf14 normalBuffer\cf4 );\
+        \cf5 glVertexAttribPointer\cf4 (\cf10 3\cf4 , \cf10 3\cf4 , \cf5 GL_FLOAT\cf4 , \cf5 GL_FALSE\cf4 , \cf10 0\cf4 , (
+\f1\b \cf9 void
+\f0\b0 \cf4 *)\cf10 0\cf4 );\
+        \cf11 glDrawArrays\cf4 (\cf5 GL_TRIANGLES\cf4 , \cf10 0\cf4 , \cf10 400\cf4 *\cf10 12\cf4 );\
+\
+        \
+        \cf2 // Light\cf4 \
+        \cf2 /*\cf4 \
+\cf2         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &lightMVP[0][0]);\cf4 \
+\cf2         glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &lightMatrix[0][0]);\cf4 \
+\cf2         \cf4 \
+\cf2         glBindBuffer(GL_ARRAY_BUFFER, lvb);\cf4 \
+\cf2         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);\cf4 \
+\cf2         \cf4 \
+\cf2         glEnableVertexAttribArray(1);\cf4 \
+\cf2         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);\cf4 \
+\cf2         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);\cf4 \
+\cf2         \cf4 \
+\cf2         glEnableVertexAttribArray(2);\cf4 \
+\cf2         glBindBuffer(GL_ARRAY_BUFFER, lub);\cf4 \
+\cf2         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);\cf4 \
+\cf2         \cf4 \
+\cf2         glEnableVertexAttribArray(3);\cf4 \
+\cf2         glBindBuffer(GL_ARRAY_BUFFER, lnb);\cf4 \
+\cf2         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);\cf4 \
+\cf2         glDrawArrays(GL_TRIANGLES, 0, 400*12);\cf4 \
+\cf2         */\cf4 \
+        \cf2 // dt reset\cf4 \
+        lastTime = currentTime;\
+\
+        \cf2 // Swap buffers\cf4 \
+        \cf11 glfwSwapBuffers\cf4 (\cf14 window\cf4 );\
+        \cf11 glfwPollEvents\cf4 ();\
+\
+    \} \cf2 // Check if the ESC key was pressed or the window was closed\cf4 \
+    
+\f1\b \cf9 while
+\f0\b0 \cf4 ( \cf11 glfwGetKey\cf4 (\cf14 window\cf4 , \cf5 GLFW_KEY_ESCAPE\cf4  ) != \cf5 GLFW_PRESS\cf4  &&\
+           \cf11 glfwWindowShouldClose\cf4 (\cf14 window\cf4 ) == \cf10 0\cf4  );\
+\
+    \cf2 // Close OpenGL window and terminate GLFW\cf4 \
+    \cf11 glfwTerminate\cf4 ();\
+\
+    
+\f1\b \cf9 return
+\f0\b0 \cf4  \cf10 0\cf4 ;\
+\}\
+\
+}
